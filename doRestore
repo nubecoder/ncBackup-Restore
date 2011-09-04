@@ -81,17 +81,12 @@ GET_BACKUP_NAME()
 }
 CHECK_READY()
 {
-	if [ ! -d /data/data ] || [ ! -d /system/media ] ; then
-		LOG_PRINT "Fatal error: Are /data and /system mounted?"
+	if [ ! -f $BACKUP_FILE ] ; then
+		LOG_PRINT "Fatal error: Have you done a backup?"
 		return 1
 	else
-		if [ ! -f $BACKUP_FILE ] ; then
-			LOG_PRINT "Fatal error: Have you done a backup?"
-			return 1
-		else
-			GET_BACKUP_NAME
-			return 0
-		fi
+		GET_BACKUP_NAME
+		return 0
 	fi
 }
 WIPE_DATA_FOLDER()
