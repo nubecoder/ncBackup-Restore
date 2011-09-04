@@ -105,8 +105,8 @@ CREATE_ZIP()
 		fi
 		PATCH_FOR_RESTORE
 	fi
-	local FIND_EVO="EVO"
-	if [ "$FILE_NAME" != "${FILE_NAME/$FIND_EVO/}" ] ; then
+	local IS_EVO="EVO"
+	if [ "$FILE_NAME" != "${FILE_NAME/$IS_EVO/}" ] ; then
 		PATCH_FOR_EVO
 	fi
 	local OUTFILE=$PWD/$FILE_NAME
