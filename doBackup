@@ -130,10 +130,13 @@ CREATE_INCLUDE_FILE()
 CREATE_EXCLUDE_FILE()
 {
 	if [ ! -f $EXCLUDE_FILE ] ; then
+		echo "data/data/*/cache/" >>$EXCLUDE_FILE
+		if [ $VERBOSE = true ] ; then
+			LOG_MESSAGE "Excluding: data/data/*/cache/"
+		fi
 		local PARTS="data/anr/"
 		local PARTS="$PARTS data/backup/"
 		local PARTS="$PARTS data/dalvik-cache/"
-		local PARTS="$PARTS data/data/*/cache/"
 		local PARTS="$PARTS data/dontpanic/"
 		local PARTS="$PARTS data/dump/"
 		local PARTS="$PARTS data/fota/"
