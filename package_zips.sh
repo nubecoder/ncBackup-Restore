@@ -55,6 +55,13 @@ PATCH_FOR_ZIP()
 	local FILE="$TOOLS_PATH/$1"
 	sed -i 's/#!\/system\/bin\/sh/#!\/data\/local\/tmp\/busybox sh/g' $FILE
 }
+PATCH_FOR_DATA_WIPE()
+{
+	local FILE="$TOOLS_PATH/$1"
+	local PATTERN="#\tWIPE_DATA_FOLDER"
+	local REPLACEMENT="\tWIPE_DATA_FOLDER"
+	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
+}
 PATCH_FOR_RESTORE()
 {
 	local FILE="$UPDATER_PATH/$UPDATER_FILE"
@@ -92,6 +99,10 @@ CREATE_ZIP()
 	else
 		PREPARE_ZIP_FOLDER "$RESTORE_FILE"
 		PATCH_FOR_ZIP "$RESTORE_FILE"
+		local IS_WIPE="Data_Wipe"
+		if [ "$FILE_NAME" != "${FILE_NAME/$IS_WIPE/}" ] ; then
+			PATCH_FOR_DATA_WIPE "$RESTORE_FILE"
+		fi
 		PATCH_FOR_RESTORE
 	fi
 	local FIND_EVO="EVO"
@@ -115,11 +126,13 @@ SPACER
 echo "Packaging EPIC zips:"
 CREATE_ZIP "backup_EPIC"
 CREATE_ZIP "restore_EPIC"
+CREATE_ZIP "restore_EPIC_Data_Wipe"
 
 SPACER
 echo "Packaging EVO zips:"
 CREATE_ZIP "backup_EVO"
 CREATE_ZIP "restore_EVO"
+CREATE_ZIP "restore_EVO_Data_Wipe"
 
 SPACER
 REMOVE_FILES
