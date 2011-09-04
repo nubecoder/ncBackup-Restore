@@ -87,6 +87,19 @@ PATCH_FOR_EVO()
 	local REPLACEMENT="\/dev\/block\/mtdblock6"
 	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
 }
+PATCH_FOR_HEROC()
+{
+	local FILE="$UPDATER_PATH/$UPDATER_FILE"
+	local PATTERN="SPH-D700"
+	local REPLACEMENT="heroc"
+	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
+	local PATTERN="\/dev\/block\/stl9"
+	local REPLACEMENT="\/dev\/block\/mtdblock3"
+	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
+	local PATTERN="\/dev\/block\/stl10"
+	local REPLACEMENT="\/dev\/block\/mtdblock5"
+	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
+}
 CREATE_ZIP()
 {
 	local T1=$(date +%s)
@@ -108,6 +121,10 @@ CREATE_ZIP()
 	local IS_EVO="EVO"
 	if [ "$FILE_NAME" != "${FILE_NAME/$IS_EVO/}" ] ; then
 		PATCH_FOR_EVO
+	fi
+	local IS_HEROC="HEROC"
+	if [ "$FILE_NAME" != "${FILE_NAME/$IS_HEROC/}" ] ; then
+		PATCH_FOR_HEROC
 	fi
 	local OUTFILE=$PWD/$FILE_NAME
 	rm -f "$OUTFILE"
@@ -133,6 +150,12 @@ echo "Packaging EVO zips:"
 CREATE_ZIP "backup_EVO"
 CREATE_ZIP "restore_EVO"
 CREATE_ZIP "restore_EVO_Data_Wipe"
+
+SPACER
+echo "Packaging HEROC zips:"
+CREATE_ZIP "backup_HEROC"
+CREATE_ZIP "restore_HEROC"
+CREATE_ZIP "restore_HEROC_Data_Wipe"
 
 SPACER
 REMOVE_FILES
