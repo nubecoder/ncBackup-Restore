@@ -92,19 +92,24 @@ CHECK_READY()
 WIPE_DATA_FOLDER()
 {
 	LOG_PRINT "Erasing files in /data..."
-	local MATCH=false
-	local PARTS="/data/*/*"
-	for PART in $PARTS ; do
-		if [ "$PART" = "$PATH" ] ; then
-			local MATCH="true"
-		fi
-		if [ "$MATCH" = "false" ] ; then
-			rm -rf "$PART"
+	local DATA_PARTS="/data/*"
+	for DATA_PART in $DATA_PARTS ; do
+		if [ "$DATA_PART" != "/data/local" ] ; then
+			rm -rf "$DATA_PART"
 			if [ "$VERBOSE" = "true" ] ; then
-				LOG_MESSAGE "Removing file: $PART"
+				LOG_MESSAGE "Removing file: $DATA_PART"
 			fi
+		else
+			local DATA_LOCAL_PARTS="$DATA_PART/*"
+			for DATA_LOCAL_PART in $DATA_LOCAL_PARTS ; do
+				if [ "$DATA_LOCAL_PART" != "$PATH" ] ; then
+					rm -rf "$DATA_LOCAL_PART"
+					if [ "$VERBOSE" = "true" ] ; then
+						LOG_MESSAGE "Removing file: $DATA_LOCAL_PART"
+					fi
+				fi
+			done
 		fi
-		MATCH="false"
 	done
 }
 EXTRACT_BACKUP()
