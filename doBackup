@@ -139,6 +139,7 @@ CREATE_EXCLUDE_FILE()
 		local PARTS="$PARTS data/dontpanic/"
 		local PARTS="$PARTS data/dump/"
 		local PARTS="$PARTS data/fota/"
+		local PARTS="$PARTS data/jit/"
 		local PARTS="$PARTS data/local/tmp/"
 		local PARTS="$PARTS data/log/"
 		local PARTS="$PARTS data/lost+found/"
