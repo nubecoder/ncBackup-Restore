@@ -19,8 +19,8 @@ BB="$PATH/busybox"
 BACKUP_PATH="/sdcard/backup-restore"
 NAME_FILE="$BACKUP_PATH/name"
 LOG_FILE="$BACKUP_PATH/log.restore"
-LOGGING="true"
-VERBOSE="true"
+LOGGING=true
+VERBOSE=true
 TIME_START=$($BB date +%s)
 OUTFD=$($BB ps | $BB grep -v "grep" | $BB grep -o -E "update_binary(.*)" | $BB cut -d " " -f 3);
 
@@ -34,7 +34,7 @@ FIX_BROKEN_RECOVERIES()
 }
 LOG_MESSAGE()
 {
-	if [ "$LOGGING" = "true" ] ; then
+	if [ $LOGGING = true ] ; then
 		echo "$1" >>"$LOG_FILE"
 	fi
 }
@@ -101,7 +101,7 @@ WIPE_DATA_FOLDER()
 	for DATA_PART in $DATA_PARTS ; do
 		if [ "$DATA_PART" != "/data/local" ] ; then
 			rm -rf "$DATA_PART"
-			if [ "$VERBOSE" = "true" ] ; then
+			if [ $VERBOSE = true ] ; then
 				LOG_MESSAGE "Removing file: $DATA_PART"
 			fi
 		else
@@ -109,7 +109,7 @@ WIPE_DATA_FOLDER()
 			for DATA_LOCAL_PART in $DATA_LOCAL_PARTS ; do
 				if [ "$DATA_LOCAL_PART" != "$PATH" ] ; then
 					rm -rf "$DATA_LOCAL_PART"
-					if [ "$VERBOSE" = "true" ] ; then
+					if [ $VERBOSE = true ] ; then
 						LOG_MESSAGE "Removing file: $DATA_LOCAL_PART"
 					fi
 				fi
@@ -121,7 +121,7 @@ EXTRACT_BACKUP()
 {
 	LOG_PRINT "Beginning tar extraction..."
 	cd /
-	if [ "$LOGGING" = "true" ] ; then
+	if [ $LOGGING = true ] ; then
 		tar -xz -f "$BACKUP_FILE" 2>&1 | tee -a $LOG_FILE
 	else
 		tar -xz -f "$BACKUP_FILE"
