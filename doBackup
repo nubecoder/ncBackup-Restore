@@ -1,0 +1,192 @@
+#!/system/bin/sh
+#
+# doBackup
+#
+#
+# 2011 nubecoder
+# http://www.nubecoder.com/
+#
+# Original concept from the BonsaiROM
+#
+# Parts used from Chainfire's XDA thread:
+# Output to recovery UI from shell script: http://forum.xda-developers.com/showthread.php?t=1023150
+#
+
+#defines
+OLD_PATH=$PATH
+export PATH="/data/local/tmp"
+BB="$PATH/busybox"
+BACKUP_PATH="/sdcard/backup-restore"
+NAME_FILE="$BACKUP_PATH/name"
+INCLUDE_FILE="$BACKUP_PATH/include"
+EXCLUDE_FILE="$BACKUP_PATH/exclude"
+LOG_FILE="$BACKUP_PATH/log.backup"
+LOGGING="true"
+VERBOSE="true"
+TIME_START=$($BB date +%s)
+OUTFD=$($BB ps | $BB grep -v "grep" | $BB grep -o -E "update_binary(.*)" | $BB cut -d " " -f 3);
+
+#functions
+END_TIME()
+{
+	TIME_END=$($BB date +%s)
+}
+RESTORE_PATH()
+{
+	export PATH=$OLD_PATH
+}
+FIX_BROKEN_RECOVERIES()
+{
+	$BB --install -s $PATH
+	$BB sync
+	CLEAR_LOG
+	LOG_PRINT "Installed temp busybox to: $PATH"
+	CREATE_BACKUP_PATH
+}
+CLEAR_LOG()
+{
+	$BB rm -f "$LOG_FILE"
+}
+LOG_MESSAGE()
+{
+	if [ "$LOGGING" = "true" ] ; then
+		echo "$1" | tee -a "$LOG_FILE"
+	fi
+}
+LOG_PRINT()
+{
+	local MESSAGE="$1"
+	LOG_MESSAGE "$MESSAGE"
+	UI_PRINT "$MESSAGE"
+}
+UI_PRINT()
+{
+	if [ ${OUTFD} ] ; then
+		echo "ui_print ${1} " 1>&$OUTFD;
+		echo "ui_print " 1>&$OUTFD;
+	else
+		if [ "${#}" -lt 1 ] ; then
+			echo " ";
+		else
+			echo "${1}";
+		fi;
+	fi;
+}
+GET_BACKUP_NAME()
+{
+	if [ ! -f $NAME_FILE ] ; then
+		echo "backup" >$NAME_FILE
+		LOG_PRINT "Created: $NAME_FILE"
+	else
+		LOG_PRINT "Using: $NAME_FILE"
+	fi
+	BACKUP_FILE="$BACKUP_PATH/$(cat $NAME_FILE).tar.gz"
+	LOG_MESSAGE "Backup Name: $BACKUP_FILE"
+}
+CHECK_READY()
+{
+	if [ ! -d /data/data ] || [ ! -d /system/media ] ; then
+		LOG_PRINT "Fatal error: Is \"/data\" and \"/system\" mounted?"
+		return 1
+	else
+		return 0
+	fi
+}
+CREATE_BACKUP_PATH()
+{
+	if [ ! -d $BACKUP_PATH ] ; then
+		mkdir $BACKUP_PATH
+		LOG_PRINT "Created: $BACKUP_PATH"
+	fi
+}
+CREATE_INCLUDE_FILE()
+{
+	if [ ! -f $INCLUDE_FILE ] ; then
+		if [ -f /system/etc/profile ] ; then
+			local PARTS="$PARTS system/etc/profile"
+		fi
+		if [ -f /system/etc/bash.bashrc ] ; then
+			local PARTS="$PARTS system/etc/bash.bashrc"
+		fi
+		if [ -f /system/etc/PowerOn.wav ] ; then
+			local PARTS="$PARTS system/etc/PowerOn.wav"
+		fi
+		if [ -d /system/customize/resource ] ; then
+			local PARTS="$PARTS system/customize/resource/"
+		fi
+		if [ -d /system/media ] ; then
+			local PARTS="$PARTS system/media/"
+		fi
+		local PARTS="$PARTS data/"
+		for PART in $PARTS ; do
+			if [ "$VERBOSE" = "true" ] ; then
+				LOG_MESSAGE " including $PART"
+			fi
+			echo $PART >>$INCLUDE_FILE
+		done
+		LOG_PRINT "Created: $INCLUDE_FILE"
+	else
+		LOG_PRINT "Using: $INCLUDE_FILE"
+	fi
+}
+CREATE_EXCLUDE_FILE()
+{
+	if [ ! -f $EXCLUDE_FILE ] ; then
+		local PARTS="data/anr/"
+		local PARTS="$PARTS data/backup/"
+		local PARTS="$PARTS data/dalvik-cache/"
+		local PARTS="$PARTS data/data/*/cache/"
+		local PARTS="$PARTS data/dontpanic/"
+		local PARTS="$PARTS data/dump/"
+		local PARTS="$PARTS data/fota/"
+		local PARTS="$PARTS data/local/tmp/"
+		local PARTS="$PARTS data/log/"
+		local PARTS="$PARTS data/lost+found/"
+		local PARTS="$PARTS data/system/batterystats.bin"
+		local PARTS="$PARTS data/system/dropbox/"
+		local PARTS="$PARTS data/system/uiderrors.txt"
+		local PARTS="$PARTS data/tmp/"
+		local PARTS="$PARTS data/tombstones/"
+		local PARTS="$PARTS system/media/audio/ui/"
+		for PART in $PARTS ; do
+			if [ "$VERBOSE" = "true" ] ; then
+				LOG_MESSAGE " excluding $PART"
+			fi
+			echo $PART >>$EXCLUDE_FILE
+		done
+		LOG_PRINT "Created: $EXCLUDE_FILE"
+	else
+		LOG_PRINT "Using: $EXCLUDE_FILE"
+	fi
+}
+CREATE_BACKUP()
+{
+	LOG_PRINT "Beginning tar creation..."
+	cd /
+	if [ "$LOGGING" = "true" ] ; then
+		tar -cz -T $INCLUDE_FILE -X $EXCLUDE_FILE -f "$BACKUP_FILE" 2>&1 | tee -a $LOG_FILE
+	else
+		tar -cz -T $INCLUDE_FILE -X $EXCLUDE_FILE -f "$BACKUP_FILE"
+	fi
+	if [ $? = 0 ] ; then
+		LOG_PRINT "Created: $BACKUP_FILE"
+	else
+		LOG_PRINT "Error: backup failed!"
+	fi
+}
+
+#main
+FIX_BROKEN_RECOVERIES
+GET_BACKUP_NAME
+CHECK_READY
+if [ $? = 0 ] ; then
+	CREATE_BACKUP_PATH
+	CREATE_INCLUDE_FILE
+	CREATE_EXCLUDE_FILE
+	CREATE_BACKUP
+	END_TIME
+	LOG_PRINT "Backup took: $(($TIME_END - $TIME_START)) seconds."
+fi
+RESTORE_PATH
+exit
+

@@ -1,0 +1,141 @@
+#!/system/bin/sh
+#
+# doRestore
+#
+#
+# 2011 nubecoder
+# http://www.nubecoder.com/
+#
+# Original concept from the BonsaiROM
+#
+# Parts used from Chainfire's XDA thread:
+# Output to recovery UI from shell script: http://forum.xda-developers.com/showthread.php?t=1023150
+#
+
+#defines
+OLD_PATH=$PATH
+export PATH="/data/local/tmp"
+BB="$PATH/busybox"
+BACKUP_PATH="/sdcard/backup-restore"
+NAME_FILE="$BACKUP_PATH/name"
+LOG_FILE="$BACKUP_PATH/log.restore"
+LOGGING="true"
+VERBOSE="true"
+TIME_START=$($BB date +%s)
+OUTFD=$($BB ps | $BB grep -v "grep" | $BB grep -o -E "update_binary(.*)" | $BB cut -d " " -f 3);
+
+#functions
+END_TIME()
+{
+	TIME_END=$($BB date +%s)
+}
+RESTORE_PATH()
+{
+	export PATH=$OLD_PATH
+}
+FIX_BROKEN_RECOVERIES()
+{
+	$BB --install -s $PATH
+	$BB sync
+	CLEAR_LOG
+	LOG_PRINT "Installed temp busybox to: $PATH"
+}
+CLEAR_LOG()
+{
+	$BB rm -f "$LOG_FILE"
+}
+LOG_MESSAGE()
+{
+	if [ "$LOGGING" = "true" ] ; then
+		echo "$1" | tee -a "$LOG_FILE"
+	fi
+}
+LOG_PRINT()
+{
+	local MESSAGE="$1"
+	LOG_MESSAGE "$MESSAGE"
+	UI_PRINT "$MESSAGE"
+}
+UI_PRINT()
+{
+	if [ ${OUTFD} ] ; then
+		echo "ui_print ${1} " 1>&$OUTFD;
+		echo "ui_print " 1>&$OUTFD;
+	else
+		if [ "${#}" -lt 1 ] ; then
+			echo " ";
+		else
+			echo "${1}";
+		fi;
+	fi;
+}
+GET_BACKUP_NAME()
+{
+	if [ ! -f $NAME_FILE ] ; then
+		echo "backup" >$NAME_FILE
+		LOG_PRINT "Created: $NAME_FILE"
+	else
+		LOG_PRINT "Using: $NAME_FILE"
+	fi
+	BACKUP_FILE="$BACKUP_PATH/$(cat $NAME_FILE).tar.gz"
+	LOG_MESSAGE "Backup Name: $BACKUP_FILE"
+}
+CHECK_READY()
+{
+	if [ ! -f $BACKUP_FILE ] ; then
+		LOG_PRINT "Fatal error: Have you done a backup?"
+		return 1
+	else
+		return 0
+	fi
+}
+WIPE_DATA_FOLDER()
+{
+	LOG_PRINT "Erasing files in /data..."
+	local MATCH=false
+	local PARTS="/data/*/*"
+	for PART in $PARTS ; do
+		if [ "$PART" = "$PATH" ] ; then
+			local MATCH="true"
+		fi
+		if [ "$MATCH" = "false" ] ; then
+			rm -rf "$PART"
+			if [ "$VERBOSE" = "true" ] ; then
+				LOG_MESSAGE "Removing file: $PART"
+			fi
+		fi
+		MATCH="false"
+	done
+}
+EXTRACT_BACKUP()
+{
+	LOG_PRINT "Beginning tar extraction..."
+	cd /
+	if [ "$LOGGING" = "true" ] ; then
+		tar -xz -f "$BACKUP_FILE" 2>&1 | tee -a $LOG_FILE
+	else
+		tar -xz -f "$BACKUP_FILE"
+	fi
+	if [ $? = 0 ] ; then
+		if [ -d /data ] ; then
+			chmod 0755 /data/app
+		fi
+		LOG_PRINT "Extracted: $BACKUP_FILE"
+	else
+		LOG_PRINT "Error: restore failed!"
+	fi
+}
+
+#main
+FIX_BROKEN_RECOVERIES
+GET_BACKUP_NAME
+CHECK_READY
+if [ $? = 0 ] ; then
+	WIPE_DATA_FOLDER
+	EXTRACT_BACKUP
+	END_TIME
+	LOG_PRINT "Restore took: $(($TIME_END - $TIME_START)) seconds."
+fi
+RESTORE_PATH
+exit
+
