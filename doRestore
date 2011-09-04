@@ -25,14 +25,6 @@ TIME_START=$($BB date +%s)
 OUTFD=$($BB ps | $BB grep -v "grep" | $BB grep -o -E "update_binary(.*)" | $BB cut -d " " -f 3);
 
 #functions
-END_TIME()
-{
-	TIME_END=$($BB date +%s)
-}
-RESTORE_PATH()
-{
-	export PATH=$OLD_PATH
-}
 FIX_BROKEN_RECOVERIES()
 {
 	$BB --install -s $PATH
@@ -40,21 +32,20 @@ FIX_BROKEN_RECOVERIES()
 	CLEAR_LOG
 	LOG_PRINT "Installed temp busybox to: $PATH"
 }
-CLEAR_LOG()
-{
-	$BB rm -f "$LOG_FILE"
-}
 LOG_MESSAGE()
 {
 	if [ "$LOGGING" = "true" ] ; then
-		echo "$1" | tee -a "$LOG_FILE"
+		echo "$1" >>"$LOG_FILE"
 	fi
 }
 LOG_PRINT()
 {
-	local MESSAGE="$1"
-	LOG_MESSAGE "$MESSAGE"
-	UI_PRINT "$MESSAGE"
+	LOG_MESSAGE "$1"
+	UI_PRINT "$1"
+}
+CLEAR_LOG()
+{
+	rm -f "$LOG_FILE"
 }
 UI_PRINT()
 {
@@ -69,6 +60,14 @@ UI_PRINT()
 		fi;
 	fi;
 }
+END_TIME()
+{
+	TIME_END=$(date +%s)
+}
+RESTORE_PATH()
+{
+	export PATH=$OLD_PATH
+}
 GET_BACKUP_NAME()
 {
 	if [ ! -f $NAME_FILE ] ; then
@@ -82,11 +81,17 @@ GET_BACKUP_NAME()
 }
 CHECK_READY()
 {
-	if [ ! -f $BACKUP_FILE ] ; then
-		LOG_PRINT "Fatal error: Have you done a backup?"
+	if [ ! -d /data/data ] || [ ! -d /system/media ] ; then
+		LOG_PRINT "Fatal error: Are /data and /system mounted?"
 		return 1
 	else
-		return 0
+		if [ ! -f $BACKUP_FILE ] ; then
+			LOG_PRINT "Fatal error: Have you done a backup?"
+			return 1
+		else
+			GET_BACKUP_NAME
+			return 0
+		fi
 	fi
 }
 WIPE_DATA_FOLDER()
@@ -122,7 +127,7 @@ EXTRACT_BACKUP()
 		tar -xz -f "$BACKUP_FILE"
 	fi
 	if [ $? = 0 ] ; then
-		if [ -d /data ] ; then
+		if [ -d /data/app ] ; then
 			chmod 0755 /data/app
 		fi
 		LOG_PRINT "Extracted: $BACKUP_FILE"
@@ -133,7 +138,6 @@ EXTRACT_BACKUP()
 
 #main
 FIX_BROKEN_RECOVERIES
-GET_BACKUP_NAME
 CHECK_READY
 if [ $? = 0 ] ; then
 #	WIPE_DATA_FOLDER
