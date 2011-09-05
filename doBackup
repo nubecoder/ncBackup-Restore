@@ -146,6 +146,7 @@ CREATE_EXCLUDE_FILE()
 		local PARTS="$PARTS data/lost+found/"
 		local PARTS="$PARTS data/system/batterystats.bin"
 		local PARTS="$PARTS data/system/dropbox/"
+		local PARTS="$PARTS data/system/firstfroyo"
 		local PARTS="$PARTS data/system/uiderrors.txt"
 		local PARTS="$PARTS data/tmp/"
 		local PARTS="$PARTS data/tombstones/"
