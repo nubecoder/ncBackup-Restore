@@ -1,0 +1,34 @@
+#
+# ncBackup-Restore
+#
+# 2011 nubecoder
+# www.nubecoder.com/
+#
+# Special thanks to Anomaly for Evo 4G testing!
+# www.graphicanomaly.com
+#
+# Original concept from the BonsaiROM
+# www.bonsai4android.com
+
+Project info:
+
+  Selective and configurable backup and restore for android.
+
+Features include:
+
+  Recovery based backup and restore to minimise conflicts.
+  Outputs progress and info to the recovery UI.
+  Should support most devices with a custom recovery.
+    Tested on a Samsung Epic 4G (ClockworkMod Recovery) and a HTC Evo 4G (AmonRA recovery).
+  Backups are tar based, gzip compressed and configurable.
+  Fully configurable via files on the sdcard (/sdcard/backup-restore/).
+    The include file includes files and folders (/sdcard/backup-restore/include).
+    The exclude file excludes files and folders (/sdcard/backup-restore/exclude).
+    The name file determines the name of the backup, e.g. "backup" will create "backup.tar.gz" ("backup" is the default).
+  Pre-configured to not backup useless items such as logs, tombstones, etc (will create default include and exclude files on the sdcard).
+  Does not wipe data partition before restoring (unless you choose the "ncRestore_Data_Wipe.zip").
+  Should preserve apps moved to the sdcard.
+
+Zips that can be installed via a custom recovery can be found here:
+	http://www.nubecoder.com/files/android/ncBackup-Restore/
+
