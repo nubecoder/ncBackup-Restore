@@ -74,38 +74,12 @@ PATCH_FOR_RESTORE()
 	sed -i 's/show_progress(1.0, 120)/show_progress(1.0, 60)/g' $FILE
 	sed -i 's/=]               Android Backup               =]/=]               Android Restore              =]/g' $FILE
 }
-PATCH_FOR_EVO()
-{
-	local FILE="$UPDATER_PATH/$UPDATER_FILE"
-	local PATTERN="SPH-D700"
-	local REPLACEMENT="supersonic"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-	local PATTERN="\/dev\/block\/stl9"
-	local REPLACEMENT="\/dev\/block\/mtdblock4"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-	local PATTERN="\/dev\/block\/stl10"
-	local REPLACEMENT="\/dev\/block\/mtdblock6"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-}
-PATCH_FOR_HEROC()
-{
-	local FILE="$UPDATER_PATH/$UPDATER_FILE"
-	local PATTERN="SPH-D700"
-	local REPLACEMENT="heroc"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-	local PATTERN="\/dev\/block\/stl9"
-	local REPLACEMENT="\/dev\/block\/mtdblock3"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-	local PATTERN="\/dev\/block\/stl10"
-	local REPLACEMENT="\/dev\/block\/mtdblock5"
-	REPLACE_TEXT $PATTERN $REPLACEMENT $FILE
-}
 CREATE_ZIP()
 {
 	local T1=$(date +%s)
-	local FILE_NAME="android_$1.zip"
+	local FILE_NAME="$1.zip"
 	echo "Begin $FILE_NAME creation"
-	local IS_BACKUP="backup"
+	local IS_BACKUP="ncBackup"
 	if [ "$FILE_NAME" != "${FILE_NAME/$IS_BACKUP/}" ] ; then
 		PREPARE_ZIP_FOLDER "$BACKUP_FILE"
 		PATCH_FOR_ZIP "$BACKUP_FILE"
@@ -117,14 +91,6 @@ CREATE_ZIP()
 			PATCH_FOR_DATA_WIPE "$RESTORE_FILE"
 		fi
 		PATCH_FOR_RESTORE
-	fi
-	local IS_EVO="EVO"
-	if [ "$FILE_NAME" != "${FILE_NAME/$IS_EVO/}" ] ; then
-		PATCH_FOR_EVO
-	fi
-	local IS_HEROC="HEROC"
-	if [ "$FILE_NAME" != "${FILE_NAME/$IS_HEROC/}" ] ; then
-		PATCH_FOR_HEROC
 	fi
 	local OUTFILE=$PWD/$FILE_NAME
 	rm -f "$OUTFILE"
@@ -138,25 +104,18 @@ CREATE_ZIP()
 
 #main
 START_SCRIPT
-
 SPACER
-echo "Packaging EPIC zips:"
-CREATE_ZIP "backup_EPIC"
-CREATE_ZIP "restore_EPIC"
-CREATE_ZIP "restore_EPIC_Data_Wipe"
-
+NAME_ARG="ncBackup"
+echo "Packaging $NAME_ARG:"
+CREATE_ZIP "$NAME_ARG"
 SPACER
-echo "Packaging EVO zips:"
-CREATE_ZIP "backup_EVO"
-CREATE_ZIP "restore_EVO"
-CREATE_ZIP "restore_EVO_Data_Wipe"
-
+NAME_ARG="ncRestore"
+echo "Packaging $NAME_ARG:"
+CREATE_ZIP "$NAME_ARG"
 SPACER
-echo "Packaging HEROC zips:"
-CREATE_ZIP "backup_HEROC"
-CREATE_ZIP "restore_HEROC"
-CREATE_ZIP "restore_HEROC_Data_Wipe"
-
+NAME_ARG="ncRestore_Data Wipe"
+echo "Packaging $NAME_ARG:"
+CREATE_ZIP "$NAME_ARG"
 SPACER
 REMOVE_FILES
 SHOW_COMPLETED

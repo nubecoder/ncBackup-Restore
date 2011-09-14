@@ -1,6 +1,3 @@
-assert(getprop("ro.product.device") == "SPH-D700" ||
-	getprop("ro.build.product") == "SPH-D700");
-
 ui_print("");ui_print("");ui_print("");ui_print("");ui_print("");
 ui_print("");ui_print("");ui_print("");ui_print("");ui_print("");
 ui_print("                               =]=]=]");
@@ -43,9 +40,9 @@ show_progress(0.2, 0);
 
 ui_print("Mounting partitions...");
 assert(
-	run_program("/sbin/busybox", "mount", "/dev/block/stl9", "/system"),
-	run_program("/sbin/busybox", "mount", "/dev/block/stl10", "/data"),
-	run_program("/sbin/busybox", "mount", "/dev/block/mmcblk0p1", "/sdcard")
+	run_program("/sbin/busybox", "mount", "/system"),
+	run_program("/sbin/busybox", "mount", "/data"),
+	run_program("/sbin/busybox", "mount", "/sdcard")
 	);
 set_progress(0.5);
 
