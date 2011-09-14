@@ -25,6 +25,7 @@ Features include:
     The include file includes files and folders (/sdcard/backup-restore/include).
     The exclude file excludes files and folders (/sdcard/backup-restore/exclude).
     The name file determines the name of the backup, e.g. "backup" will create "backup.tar.gz" ("backup" is the default).
+  Pre-configured to backup boot animations, ringtones, notifications, and alarms.
   Pre-configured to not backup useless items such as logs, tombstones, etc (will create default include and exclude files on the sdcard).
   Does not wipe data partition before restoring (unless you choose the "ncRestore_Data_Wipe.zip").
   Should preserve apps moved to the sdcard.
