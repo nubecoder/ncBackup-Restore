@@ -113,7 +113,7 @@ NAME_ARG="ncRestore"
 echo "Packaging $NAME_ARG:"
 CREATE_ZIP "$NAME_ARG"
 SPACER
-NAME_ARG="ncRestore_Data Wipe"
+NAME_ARG="ncRestore_Data_Wipe"
 echo "Packaging $NAME_ARG:"
 CREATE_ZIP "$NAME_ARG"
 SPACER
