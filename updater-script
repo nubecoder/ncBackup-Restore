@@ -24,7 +24,7 @@ ui_print("=]        Originally for the BonsaiRom        =]");
 ui_print("=]           Rewritten by nubecoder           =]");
 ui_print("=]             www.nubecoder.com              =]");
 ui_print("=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]=]");
-ui_print("");ui_print("");ui_print("");ui_print("");sleep(4);
+ui_print("");ui_print("");ui_print("");sleep(4);
 ui_print("");ui_print("");ui_print("");ui_print("");ui_print("");
 ui_print("");ui_print("");ui_print("");ui_print("");ui_print("");
 ui_print("");ui_print("");ui_print("");ui_print("");ui_print("");
