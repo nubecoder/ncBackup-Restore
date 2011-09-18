@@ -16,7 +16,7 @@ Project info:
 
 Features include:
 
-  Recovery based backup and restore to minimise conflicts.
+  Recovery based backup and restore to minimize conflicts.
   Outputs progress and info to the recovery UI.
   Should support most devices with a custom recovery.
     Tested on a Samsung Epic 4G (ClockworkMod Recovery) and a HTC Evo 4G (AmonRA recovery).
